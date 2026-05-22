@@ -1,0 +1,15 @@
+{
+  "name": "electron-labyrinth",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.labyrinth.app",
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
