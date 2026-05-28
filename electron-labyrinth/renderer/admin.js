@@ -18,12 +18,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 // --- FONCTION : CHARGER ET AFFICHER LES UTILISATEURS ---
 async function chargerUtilisateurs() {
     const tbody = document.getElementById('usersTable').querySelector('tbody');
-    tbody.innerHTML = ''; // On vide le tableau avant de le remplir
+    tbody.innerHTML = ''; 
 
     try {
-        // On demande la liste complète au Main Process (via preload.js)
-        // Note : Assure-toi que 'get-all-users' est bien défini dans ton main.js / preload.js
-        const dataUsers = await window.api.invoke('get-all-users'); 
+        // Utilisation de window.electronAPI
+        const dataUsers = await window.electronAPI.invoke('get-all-users'); 
         
         dataUsers.forEach(u => {
             const tr = document.createElement('tr');
@@ -49,9 +48,8 @@ async function chargerLabyrinthes() {
     tbody.innerHTML = '';
 
     try {
-        // On demande la liste globale des labyrinthes au Main Process
-        // Note : Assure-toi que 'get-all-labyrinths' est bien défini dans ton main.js
-        const dataLabs = await window.api.invoke('get-all-labyrinths');
+        // Utilisation de window.electronAPI
+        const dataLabs = await window.electronAPI.invoke('get-all-labyrinths');
 
         if (dataLabs.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" style="padding: 8px; text-align: center;">Aucun labyrinthe en base de données.</td></tr>`;
@@ -78,16 +76,16 @@ async function chargerLabyrinthes() {
     }
 }
 
-// --- ACTIONS DE SUPPRESSION (CRITERES DU PANEL ADMIN) ---
+// --- ACTIONS DE SUPPRESSION ---
 
 window.supprimerUtilisateur = async (idSuppr) => {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ID ${idSuppr} ?`)) {
         try {
-            const reussite = await window.api.invoke('delete-user', idSuppr);
+            const reussite = await window.electronAPI.invoke('delete-user', idSuppr);
             if (reussite) {
                 alert('Utilisateur supprimé avec succès.');
-                await chargerUtilisateurs(); // Recharge la liste
-                await chargerLabyrinthes();  // Recharge les labs (si cascade SQL)
+                await chargerUtilisateurs(); 
+                await chargerLabyrinthes();  
             }
         } catch (error) {
             alert('Erreur lors de la suppression.');
@@ -98,10 +96,10 @@ window.supprimerUtilisateur = async (idSuppr) => {
 window.supprimerLabyrinthe = async (idLab) => {
     if (confirm(`Supprimer définitivement le labyrinthe ID ${idLab} ?`)) {
         try {
-            const reussite = await window.api.invoke('delete-labyrinth', idLab);
+            const reussite = await window.electronAPI.invoke('delete-labyrinth', idLab);
             if (reussite) {
                 alert('Labyrinthe supprimé.');
-                await chargerLabyrinthes(); // Recharge la liste
+                await chargerLabyrinthes(); 
             }
         } catch (error) {
             alert('Erreur lors de la suppression.');
