@@ -25,6 +25,10 @@ app.whenReady().then(() => {
     createWindow();
 });
 
+// ==========================================
+//          FONCTIONNALITÉS JOUEUR
+// ==========================================
+
 // REGISTER
 ipcMain.handle('register', async (event, data) => {
     return new Promise((resolve) => {
@@ -86,7 +90,7 @@ ipcMain.handle('save-maze', async (event, data) => {
     });
 });
 
-// GET MAZES
+// GET MAZES (Pour le joueur courant)
 ipcMain.handle('get-mazes', async (event, userId) => {
     return new Promise((resolve) => {
         db.all(
@@ -106,7 +110,7 @@ ipcMain.handle('get-mazes', async (event, userId) => {
     });
 });
 
-// pour modifier le nom 
+// UPDATE MAZE
 ipcMain.handle('update-maze', async (event, data) => {
     return new Promise((resolve) => {
         db.run(
@@ -128,7 +132,7 @@ ipcMain.handle('update-maze', async (event, data) => {
     });
 });
 
-// DELETE MAZE
+// DELETE MAZE (Pour le joueur courant)
 ipcMain.handle('delete-maze', async (event, id) => {
     return new Promise((resolve) => {
         db.run(
@@ -145,5 +149,65 @@ ipcMain.handle('delete-maze', async (event, id) => {
                 }
             }
         );
+    });
+});
+
+// ==========================================
+//        FONCTIONNALITÉS PANEL ADMIN
+// ==========================================
+
+// 1. OBTENIR TOUS LES UTILISATEURS
+ipcMain.handle('get-all-users', async () => {
+    return new Promise((resolve) => {
+        db.all("SELECT id, username, role FROM users", [], (err, rows) => {
+            if (err) {
+                console.error("Erreur SQLite Admin Users:", err);
+                resolve([]);
+            } else {
+                resolve(rows || []);
+            }
+        });
+    });
+});
+
+// 2. OBTENIR TOUS LES LABYRINTHES (VUE GLOBALE)
+ipcMain.handle('get-all-labyrinths', async () => {
+    return new Promise((resolve) => {
+        db.all("SELECT id, user_id, name, difficulty, size FROM labyrinths", [], (err, rows) => {
+            if (err) {
+                console.error("Erreur SQLite Admin Labyrinths:", err);
+                resolve([]);
+            } else {
+                resolve(rows || []);
+            }
+        });
+    });
+});
+
+// 3. ADMIN : SUPPRIMER UN UTILISATEUR
+ipcMain.handle('delete-user', async (event, userId) => {
+    return new Promise((resolve) => {
+        db.run("DELETE FROM users WHERE id = ?", [userId], function(err) {
+            if (err) {
+                console.error("Erreur SQLite Admin Delete User:", err);
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+});
+
+// 4. ADMIN : SUPPRIMER UN LABYRINTHE
+ipcMain.handle('delete-labyrinth', async (event, labId) => {
+    return new Promise((resolve) => {
+        db.run("DELETE FROM labyrinths WHERE id = ?", [labId], function(err) {
+            if (err) {
+                console.error("Erreur SQLite Admin Delete Lab:", err);
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        });
     });
 });
